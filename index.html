@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carlos Briceno</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#05080f;
+  --paper:#070c14;
+  --ember:#3a8edb;
+  --gold:#5bb8f5;
+  --rust:#1e4a8a;
+  --cream:#e0eeff;
+  --ash:#5a6e8a;
+  --fog:rgba(200,220,255,0.06);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:'DM Mono',monospace;
+  overflow-x:hidden;
+  cursor:crosshair;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:999;
+  opacity:0.6;
+  
+}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1.6rem 3.5rem;
+}
+nav::after{
+  content:'';position:absolute;bottom:0;left:3.5rem;right:3.5rem;
+  height:1px;background:linear-gradient(90deg,transparent,rgba(90,160,230,0.2),transparent);
+}
+.logo{
+  font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;
+  letter-spacing:-0.02em;color:var(--cream);text-decoration:none;
+}
+.logo sup{
+  font-family:'DM Mono',monospace;font-size:0.48rem;letter-spacing:0.2em;
+  color:var(--ember);vertical-align:super;font-weight:300;
+}
+.nav-links{display:flex;gap:3rem;list-style:none}
+.nav-links a{
+  font-size:0.67rem;letter-spacing:0.18em;color:var(--ash);
+  text-decoration:none;text-transform:uppercase;transition:color 0.25s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;
+  background:var(--ember);transform:scaleX(0);transform-origin:left;transition:transform 0.3s;
+}
+.nav-links a:hover{color:var(--cream)}
+.nav-links a:hover::after{transform:scaleX(1)}
+
+#hero{
+  position:relative;z-index:10;min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;align-items:center;
+  padding:0 3.5rem;gap:4rem;
+}
+.hero-left{padding-top:5rem}
+.hero-pre{
+  font-size:0.65rem;letter-spacing:0.3em;color:var(--ember);text-transform:uppercase;
+  margin-bottom:2rem;display:flex;align-items:center;gap:1rem;
+  opacity:0;animation:riseIn 0.7s 0.2s ease forwards;
+}
+.hero-pre::before{content:'';display:block;width:32px;height:1px;background:var(--ember)}
+.hero-name{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(3.5rem,7vw,6.5rem);line-height:0.92;letter-spacing:-0.035em;
+  color:var(--cream);opacity:0;animation:riseIn 0.8s 0.35s ease forwards;
+}
+.hero-name em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--ember)}
+.hero-subtitle{
+  font-size:0.82rem;color:var(--ash);line-height:1.85;margin-top:1.8rem;
+  max-width:380px;opacity:0;animation:riseIn 0.8s 0.55s ease forwards;font-style:italic;
+}
+.hero-cta{
+  display:flex;align-items:center;gap:2rem;margin-top:3rem;
+  opacity:0;animation:riseIn 0.8s 0.75s ease forwards;
+}
+.btn{
+  font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.14em;
+  text-transform:uppercase;text-decoration:none;padding:0.9rem 2rem;
+  border:1px solid var(--ember);color:var(--ink);background:var(--ember);
+  transition:background 0.25s,color 0.25s,box-shadow 0.25s;cursor:crosshair;
+}
+.btn:hover{background:transparent;color:var(--ember);box-shadow:inset 0 0 0 1px var(--ember),0 0 24px rgba(58,142,219,0.18)}
+.btn-line{
+  font-family:'DM Mono',monospace;font-size:0.7rem;letter-spacing:0.14em;
+  text-transform:uppercase;text-decoration:none;color:var(--ash);
+  transition:color 0.25s;display:flex;align-items:center;gap:0.6rem;cursor:crosshair;
+}
+.btn-line::after{content:'→';transition:transform 0.25s}
+.btn-line:hover{color:var(--cream)}
+.btn-line:hover::after{transform:translateX(4px)}
+.hero-right{
+  position:relative;height:100vh;display:flex;align-items:center;justify-content:flex-end;
+}
+.hero-stat-stack{
+  display:flex;flex-direction:column;gap:1.5rem;
+  opacity:0;animation:riseIn 1s 1s ease forwards;
+}
+.stat{border-left:2px solid var(--ember);padding-left:1.2rem}
+.stat-num{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--cream);line-height:1}
+.stat-label{font-size:0.62rem;letter-spacing:0.2em;color:var(--ash);text-transform:uppercase;margin-top:0.2rem}
+.scroll-marker{
+  position:absolute;bottom:2.5rem;left:3.5rem;
+  display:flex;align-items:center;gap:0.8rem;
+  opacity:0;animation:riseIn 1s 1.3s ease forwards;z-index:10;
+}
+.scroll-marker span{font-size:0.58rem;letter-spacing:0.22em;color:var(--ash);text-transform:uppercase;writing-mode:vertical-rl}
+.scroll-tick{width:1px;height:56px;background:linear-gradient(to bottom,var(--ember),transparent);animation:tick 2.2s ease-in-out infinite}
+@keyframes tick{0%,100%{opacity:0.3;transform:scaleY(0.5);transform-origin:top}50%{opacity:1;transform:scaleY(1)}}
+
+#about{
+  position:relative;z-index:10;padding:8rem 3.5rem;
+  display:grid;grid-template-columns:1fr 2fr;gap:6rem;max-width:1200px;margin:0 auto;
+}
+.about-label{
+  font-size:0.62rem;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--ember);writing-mode:vertical-rl;align-self:start;margin-top:0.4rem;
+}
+.about-body h2{
+  font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.4rem);
+  font-weight:800;letter-spacing:-0.03em;line-height:1.05;color:var(--cream);margin-bottom:2rem;
+}
+.about-body h2 span{color:var(--ember)}
+.about-body p{font-size:0.85rem;line-height:2;color:rgba(200,220,255,0.6);margin-bottom:1rem;max-width:560px}
+.skills-row{display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:2.5rem}
+.sk{
+  font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);
+  border:1px solid rgba(91,184,245,0.22);padding:0.28rem 0.8rem;background:rgba(91,184,245,0.05);
+  transition:background 0.25s,border-color 0.25s;
+}
+.sk:hover{background:rgba(91,184,245,0.12);border-color:rgba(91,184,245,0.5)}
+
+#projects{position:relative;z-index:10;padding:6rem 3.5rem 8rem;max-width:1200px;margin:0 auto}
+.proj-header{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:4rem;border-bottom:1px solid rgba(200,220,255,0.08);padding-bottom:1.5rem;
+}
+.proj-header h2{font-family:'Syne',sans-serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:800;letter-spacing:-0.03em;color:var(--cream)}
+.proj-header h2 span{color:transparent;-webkit-text-stroke:1px var(--ash)}
+.proj-count{font-size:0.62rem;letter-spacing:0.2em;color:var(--ash);text-transform:uppercase;padding-bottom:0.3rem}
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(200,220,255,0.07)}
+.proj-card{
+  background:var(--paper);padding:2.2rem 2rem;position:relative;
+  overflow:hidden;transition:background 0.3s;cursor:crosshair;
+}
+.proj-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 0% 0%,rgba(58,142,219,0.07),transparent 70%);
+  opacity:0;transition:opacity 0.4s;
+  pointer-events: none; 
+}
+.proj-card:hover{background:#090f1a}
+.proj-card:hover::before{opacity:1}
+.proj-idx{font-size:0.6rem;letter-spacing:0.25em;color:var(--ember);margin-bottom:1.5rem;display:block}
+.proj-card h3{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;color:var(--cream);margin-bottom:0.8rem;line-height:1.2}
+.proj-card p{font-size:0.78rem;line-height:1.85;color:rgba(200,220,255,0.45);margin-bottom:1.8rem}
+.proj-techs{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.8rem}
+.pt{font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);opacity:0.7;padding:0.2rem 0.6rem;border:1px solid rgba(91,184,245,0.2)}
+.proj-footer{display:flex;gap:1.5rem;align-items:center;border-top:1px solid rgba(200,220,255,0.07);padding-top:1.2rem}
+.proj-link{font-size:0.65rem;letter-spacing:0.14em;text-transform:uppercase;text-decoration:none;color:var(--ash);transition:color 0.25s}
+.proj-link:hover{color:var(--ember)}
+.proj-card.wide{grid-column:span 2}
+
+#contact{
+  position:relative;z-index:10;padding:8rem 3.5rem;
+  display:flex;flex-direction:column;align-items:flex-start;max-width:1200px;margin:0 auto;
+}
+.contact-pre{font-size:0.62rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--ember);margin-bottom:1.5rem}
+#contact h2{
+  font-family:'Syne',sans-serif;font-size:clamp(2.8rem,6vw,5.5rem);font-weight:800;
+  letter-spacing:-0.04em;line-height:0.95;color:var(--cream);margin-bottom:2.5rem;max-width:700px;
+}
+#contact h2 em{font-style:normal;color:transparent;-webkit-text-stroke:1px var(--ember)}
+.contact-row{display:flex;align-items:center;gap:3rem;flex-wrap:wrap}
+.contact-socials{display:flex;gap:2rem}
+.soc{
+  font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ash);text-decoration:none;transition:color 0.25s;display:flex;align-items:center;gap:0.5rem;
+}
+.soc:hover{color:var(--cream)}
+.soc svg{width:14px;height:14px;opacity:0.6}
+
+footer{
+  position:relative;z-index:10;border-top:1px solid rgba(200,220,255,0.07);
+  padding:1.5rem 3.5rem;display:flex;justify-content:space-between;align-items:center;
+}
+footer p{font-size:0.62rem;letter-spacing:0.14em;color:var(--ash)}
+footer span{color:var(--ember)}
+.rule{position:relative;z-index:10;height:1px;background:rgba(200,220,255,0.06);max-width:1200px;margin:0 auto}
+
+@keyframes riseIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.9s ease,transform 0.9s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  #hero{grid-template-columns:1fr;padding:0 1.5rem}
+  .hero-right{display:none}
+  #about{grid-template-columns:1fr;gap:2rem;padding:5rem 1.5rem}
+  .about-label{writing-mode:horizontal-tb}
+  #projects{padding:4rem 1.5rem}
+  .proj-grid{grid-template-columns:1fr}
+  .proj-card.wide{grid-column:span 1}
+  #contact{padding:5rem 1.5rem}
+  nav{padding:1.2rem 1.5rem}
+  nav::after{left:1.5rem;right:1.5rem}
+  footer{padding:1.2rem 1.5rem;flex-direction:column;gap:0.5rem;text-align:center}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<nav>
+  <a class="logo" href="#hero">Carlos Briceno<sup>SW ENG</sup></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#projects">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<section id="hero">
+  <div class="hero-left">
+    <p class="hero-pre">Available for work</p>
+    <h1 class="hero-name">Carlos<br><em>Briceno</em></h1>
+    <p class="hero-subtitle">Software engineer building things that work — hoping to put forward innovation and bring ideas to life.</p>
+    <div class="hero-cta">
+      <a href="#projects" class="btn">See my work</a>
+      <a href="#contact" class="btn-line">Get in touch</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-stat-stack">
+      <div class="stat"><div class="stat-num"></div><div class="stat-label">Full-Stack</div></div>
+      <div class="stat"><div class="stat-num"></div><div class="stat-label">Curious</div></div>
+      <div class="stat"><div class="stat-num"></div><div class="stat-label">Innovator</div></div>
+    </div>
+  </div>
+  <div class="scroll-marker">
+    <div class="scroll-tick"></div>
+    <span>scroll</span>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<section id="about">
+  <span class="about-label reveal">Profile</span>
+  <div class="about-body reveal">
+    <h2>Code that moves.<br><span>Systems that hold.</span></h2>
+    <p>I'm a software engineer who cares about the craft — not just making things work, but making them work well. I like hard problems and going to great lengths to reach a solution. </p>
+    <p>Whether it's a distributed backend, a tight UI component, or a gnarly migration — I dig in.</p>
+    <div class="skills-row">
+      <span class="sk">TypeScript</span><span class="sk">React</span><span class="sk">Node.js</span>
+      <span class="sk">Python</span><span class="sk">PostgreSQL</span><span class="sk">Docker</span>
+      <span class="sk">Javascript</span><span class="sk">C++</span><span class="sk">HTML/CSS</span>
+      <span class="sk">Supabase</span><span class="sk">Linux</span><span class="sk">Django</span>
+    </div>
+  </div>
+</section>
+
+<div class="rule"></div>
+
+<section id="projects">
+  <div class="proj-header reveal">
+    <h2>Selected <span>Work</span></h2>
+    <span class="proj-count">projects</span>
+  </div>
+  <div class="proj-grid">
+    <div class="proj-card wide reveal">
+      <span class="proj-idx">01 —</span>
+      <h3>Market Lens</h3>
+      <p>Web app that displays by ticker a stock's price and historical data and a basic ML model to predict future price. </p>
+      <div class="proj-techs"><span class="pt">Python</span><span class="pt">Streamlit</span><span class="pt">Pandas</span></div>
+      <div class="proj-footer"><a href="https://github.com/cb2k13/Market-Lens" class="proj-link">GitHub ↗</a><a href="https://market-lens-finance.streamlit.app/" class="proj-link">Live ↗</a></div>
+    </div>x
+    <div class="proj-card reveal">
+      <span class="proj-idx">02 —</span>
+      <h3>Poker Tracker</h3>
+      <p>Full stack web app in which users can create an account to track their poker earnings and log hands. </p>
+      <div class="proj-techs"><span class="pt">React</span><span class="pt">PostgreSQL</span></div>
+      <div class="proj-footer"><a href="https://github.com/cb2k13/Poker-Tracker" class="proj-link">GitHub ↗</a><a href="https://poker-tracker-jade.vercel.app/" class="proj-link">Live ↗</a></div>
+    </div>
+    <div class="proj-card reveal">
+      <span class="proj-idx">03 —</span>
+      <h3>Fortune 100 & S&P 500 Database</h3>
+      <p>Comprehensive SQL database created to store Fortune 1000 and S&P 500 companies' data and queries to determine which sectors performed the best. </p>
+      <div class="proj-techs"><span class="pt">MySQL</span></div>
+      <div class="proj-footer"><a href="https://github.com/cb2k13/Fortune-1000-S-P-500-SQL-Analysis-" class="proj-link">GitHub ↗</a><a href="https://github.com/cb2k13/Fortune-1000-S-P-500-SQL-Analysis-/blob/main/CSCI%20126%20Project_%20Fortune%201000%20%26%20S%26P%20500%20Analysis.pdf" class="proj-link">Live ↗</a></div>
+    </div>
+    <div class="proj-card reveal">
+      <span class="proj-idx">04 —</span>
+      <h3>StudyBuddy</h3>
+      <p>Collaborated in a team of four to develop a full stack mobile app that allows users to create an account to find study partners and leave professr reviews.</p>
+      <div class="proj-techs"><span class="pt">React Native</span><span class="pt">Supabase</span><span class="pt">Nativewind CSS</span></div>
+      <div class="proj-footer"><a href="https://github.com/mbarba05/StudyBuddy" class="proj-link">GitHub ↗</a></div>
+    </div>
+</section>
+
+<div class="rule"></div>
+
+<section id="contact">
+  <p class="contact-pre reveal">Let's work together</p>
+  <h2 class="reveal">Got something<br><em>worth building?</em></h2>
+  <div class="contact-row reveal">
+    <a href="mailto:carlos@example.com" class="btn">Send a message</a>
+    <div class="contact-socials">
+      <a href="https://github.com/cb2k13" target="_blank" class="soc">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+      </a>
+      <a href="https://www.linkedin.com/in/carlos-briceno-a87a71167/" target="_blank" class="soc">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+        LinkedIn
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Carlos Briceno — <span>Software Engineer</span></p>
+  <p>Built with passion &nbsp;·&nbsp; <span>2026</span></p>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  const canvas = document.getElementById('bg');
+  const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,500);
+  camera.position.set(0,0,22);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0x0a0e1a,2.5));
+  const sun = new THREE.DirectionalLight(0x5090e0,3.5);
+  sun.position.set(8,12,10); scene.add(sun);
+  const fill = new THREE.PointLight(0x102040,2,60);
+  fill.position.set(-12,-5,8); scene.add(fill);
+  const rim = new THREE.PointLight(0x1a2f6a,1.5,40);
+  rim.position.set(0,-8,-10); scene.add(rim);
+
+  // Stars — two layers
+  function makeStars(count,spread,col,sz,op){
+    const g=new THREE.BufferGeometry();
+    const p=new Float32Array(count*3);
+    for(let i=0;i<count;i++){p[i*3]=(Math.random()-.5)*spread;p[i*3+1]=(Math.random()-.5)*spread;p[i*3+2]=(Math.random()-.5)*200}
+    g.setAttribute('position',new THREE.BufferAttribute(p,3));
+    return new THREE.Points(g,new THREE.PointsMaterial({color:col,size:sz,sizeAttenuation:true,transparent:true,opacity:op}));
+  }
+  scene.add(makeStars(6000,320,0xd0e4ff,0.09,0.75));
+  scene.add(makeStars(2500,260,0xb0c8f0,0.04,0.38));
+
+  // Materials
+  function solidMat(col,r=0.5,m=0.35){return new THREE.MeshStandardMaterial({color:col,roughness:r,metalness:m})}
+  function wireMat(col,op=0.2){return new THREE.MeshBasicMaterial({color:col,wireframe:true,transparent:true,opacity:op})}
+
+  const objects=[];
+
+  function addMesh(geo,mat,x,y,z,rx,ry,rz,sx,sy){
+    const mesh=new THREE.Mesh(geo,mat);
+    mesh.position.set(x,y,z); mesh.rotation.set(rx,ry,rz);
+    mesh.userData={sx,sy,fAmp:Math.random()*0.018+0.005,fOff:Math.random()*Math.PI*2};
+    scene.add(mesh); objects.push(mesh); return mesh;
+  }
+
+  // SOLID polyhedra — deep blue tones
+  addMesh(new THREE.IcosahedronGeometry(2.2,0), solidMat(0x0d1e3b,0.42,0.52), 12,4,-8,   0.3,0.5,0.1, 0.004,0.003);
+  addMesh(new THREE.OctahedronGeometry(1.8,0),  solidMat(0x0e2a52,0.5,0.4),  -11,-3,-6,  0.7,0.2,0.4, 0.003,0.005);
+  addMesh(new THREE.DodecahedronGeometry(1.5,0),solidMat(0x081428,0.6,0.3),  6,-6,-10,   0.2,0.8,0.1, 0.005,0.003);
+  addMesh(new THREE.TetrahedronGeometry(1.7,0), solidMat(0x163060,0.38,0.58),-7,6,-9,    0.5,0.3,0.6, 0.004,0.006);
+  addMesh(new THREE.IcosahedronGeometry(1.1,0), solidMat(0x1a3870,0.33,0.62), 0,7,-7,    0.1,0.6,0.3, 0.006,0.004);
+  addMesh(new THREE.OctahedronGeometry(1.0,0),  solidMat(0x0b1f45,0.5,0.45), -14,2,-12,  0.4,0.7,0.2, 0.003,0.004);
+  addMesh(new THREE.DodecahedronGeometry(1.2,0),solidMat(0x102248,0.55,0.35), 14,-5,-11, 0.6,0.4,0.5, 0.005,0.003);
+  addMesh(new THREE.TetrahedronGeometry(0.9,0), solidMat(0x1c3868,0.4,0.5),   3,-9,-7,   0.8,0.1,0.7, 0.007,0.005);
+  addMesh(new THREE.IcosahedronGeometry(0.8,0), solidMat(0x0f1e40,0.5,0.4),  -4,-8,-9,   0.2,0.9,0.4, 0.004,0.007);
+  addMesh(new THREE.OctahedronGeometry(0.7,0),  solidMat(0x142a55,0.45,0.5),  9,-8,-8,   0.6,0.5,0.3, 0.005,0.006);
+  addMesh(new THREE.DodecahedronGeometry(0.8,0),solidMat(0x0a1830,0.55,0.4), -9,8,-11,   0.3,0.6,0.5, 0.004,0.005);
+
+  // WIRE overlays — slightly larger, floaty
+  function addWire(geo,col,x,y,z,rx,ry,rz,sx,sy){
+    addMesh(geo,wireMat(col,0.16),x,y,z,rx,ry,rz,sx,sy);
+  }
+  addWire(new THREE.IcosahedronGeometry(2.65,1),0x3a8edb,12,4,-8,   0.3,0.5,0.1, 0.0032,0.0022);
+  addWire(new THREE.OctahedronGeometry(2.15,0), 0x2a6ab0,-11,-3,-6, 0.7,0.2,0.4, 0.0022,0.0042);
+  addWire(new THREE.DodecahedronGeometry(1.85,1),0x4a9ee0,6,-6,-10, 0.2,0.8,0.1, 0.0042,0.0022);
+  addWire(new THREE.TetrahedronGeometry(2.05,0),0x2278c8,-7,6,-9,   0.5,0.3,0.6, 0.0032,0.0052);
+  addWire(new THREE.IcosahedronGeometry(1.35,1),0x5bb8f5,0,7,-7,    0.1,0.6,0.3, 0.0052,0.0032);
+  addWire(new THREE.OctahedronGeometry(1.2,0),  0x3a90e0,9,-8,-8,   0.6,0.5,0.3, 0.0042,0.0052);
+  addWire(new THREE.DodecahedronGeometry(1.0,1),0x2870c0,-9,8,-11,  0.3,0.6,0.5, 0.0032,0.0042);
+
+  // LARGE distant wire shapes for depth/atmosphere
+  addWire(new THREE.DodecahedronGeometry(4,1),   0x163060,-20,10,-38, 0.1,0.3,0.2, 0.0009,0.0015);
+  addWire(new THREE.IcosahedronGeometry(5,1),    0x1c3870, 22,-10,-42,0.2,0.5,0.1, 0.0007,0.0012);
+  addWire(new THREE.OctahedronGeometry(3,0),     0x0e2a52,-5,-16,-30, 0.4,0.2,0.6, 0.001, 0.0018);
+  addWire(new THREE.TetrahedronGeometry(3.5,0),  0x1a3878, 16,14,-36, 0.3,0.7,0.3, 0.0008,0.0013);
+  addWire(new THREE.IcosahedronGeometry(2.5,1),  0x0f1e40,-16,-12,-28,0.5,0.4,0.5, 0.0011,0.0017);
+
+  // HERO FOCAL piece — shiny emissive icosahedron
+  const heroMesh = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.4,1),
+    new THREE.MeshStandardMaterial({color:0x2278c8,roughness:0.28,metalness:0.72,emissive:0x051030,emissiveIntensity:0.5})
+  );
+  heroMesh.position.set(8,1,0); scene.add(heroMesh);
+  const heroLight = new THREE.PointLight(0x3a8edb,3,22);
+  heroLight.position.set(8,1,2); scene.add(heroLight);
+
+  // Mouse parallax
+  let tx=0,ty=0,cx=0,cy=0;
+  document.addEventListener('mousemove',e=>{
+    tx=(e.clientX/innerWidth-.5)*1.8;
+    ty=(e.clientY/innerHeight-.5)*0.9;
+  });
+
+  const clock = new THREE.Clock();
+  function tick(){
+    requestAnimationFrame(tick);
+    const t=clock.getElapsedTime();
+    cx+=(tx-cx)*0.035; cy+=(ty-cy)*0.035;
+    camera.position.x=cx; camera.position.y=-cy;
+
+    objects.forEach(o=>{
+      o.rotation.x+=o.userData.sx;
+      o.rotation.y+=o.userData.sy;
+      o.position.y+=Math.sin(t*0.55+o.userData.fOff)*o.userData.fAmp*0.07;
+    });
+
+    heroMesh.rotation.x+=0.006; heroMesh.rotation.y+=0.009;
+    heroMesh.position.y=1+Math.sin(t*0.5)*0.3;
+    heroLight.position.y=heroMesh.position.y+1;
+    heroLight.intensity=3+Math.sin(t*1.2)*0.9;
+
+    renderer.render(scene,camera);
+  }
+  tick();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+
+  // Scroll reveal
+  const revs=document.querySelectorAll('.reveal');
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')});
+  },{threshold:0.1}).observe && revs.forEach(r=>{
+    new IntersectionObserver(entries=>{
+      entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on')});
+    },{threshold:0.1}).observe(r);
+  });
+})();
+</script>
+</body>
+</html>
